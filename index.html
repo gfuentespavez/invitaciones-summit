@@ -385,17 +385,22 @@
   }
 
   async function saveInvitation(name, pdfUrl = null) {
-    if (!currentUser) return;
-    const { error } = await supabase
+    const userId = session.user.id; // 👈 obtenemos el UID del usuario logueado
+
+    const { data, error } = await supabase
             .from('invitaciones')
             .insert([{
-              user_id: currentUser.id,
-              nombre: name,
-              idioma: 'ES',
+              name,
+              user_id: userId,    // 👈 guardamos quién creó la invitación
+              timestamp: new Date(),
               pdf_url: pdfUrl
             }]);
+
     if (error) {
-      console.error("Error guardando invitación:", error);
+      console.error("❌ Error guardando invitación:", error);
+      alert("No se pudo guardar la invitación. Revisa la consola.");
+    } else {
+      console.log("✅ Invitación guardada:", data);
     }
   }
 
