@@ -290,21 +290,23 @@
 
   // Cargar nombres
   btnLoad.addEventListener('click', () => {
-    const names = document.getElementById("names").value
-            .split("\n")
-            .map(n => n.trim())
-            .filter(n => n.length > 0);
+    const rawText = document.getElementById("names").value;
+    const blocks = rawText
+            .split(",")
+            .map(b => b.trim())
+            .filter(b => b.length > 0);
 
-    if (names.length === 0) {
-      alert("Por favor ingrese al menos un nombre.");
+    if (blocks.length === 0) {
+      alert("Por favor ingrese al menos un bloque de texto.");
       return;
     }
 
-    namesList = names;
+    namesList = blocks;
     currentIndex = 0;
-    statusEl.textContent = `Se cargaron ${namesList.length} nombres. Presiona "Generar siguiente".`;
+    statusEl.textContent = `Se cargaron ${namesList.length} bloques. Presiona "Generar siguiente".`;
     btnNext.disabled = false;
   });
+
 
   btnNext.addEventListener('click', generateNext);
 
@@ -315,31 +317,37 @@
       return;
     }
 
-    const rawName = namesList[currentIndex];
-    const sanitizedName = sanitizeFilename(rawName);
+    const rawBlock = namesList[currentIndex];
+    const lines = rawBlock
+            .split("\n")
+            .map(l => l.trim())
+            .filter(l => l.length > 0);
 
-    // Cargar PDF base
+    const sanitizedName = sanitizeFilename(lines[0] || `Bloque_${currentIndex + 1}`);
+
     const templateUrl = "assets/ES_invitacion.pdf";
     const existingPdfBytes = await fetch(templateUrl).then(res => res.arrayBuffer());
     const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
 
-    // Fuente personalizada
     pdfDoc.registerFontkit(fontkit);
     const fontBytes = await fetch("assets/fonts/DobraSlab-Book.ttf").then(res => res.arrayBuffer());
     const customFont = await pdfDoc.embedFont(fontBytes);
 
-    // Dibujar nombre
     const page = pdfDoc.getPages()[0];
     const { height } = page.getSize();
-    page.drawText(rawName, {
-      x: 50,
-      y: height - 221,
-      size: 12,
-      font: customFont,
-      color: PDFLib.rgb(0, 0, 0),
-    });
 
-    // Descargar PDF
+    let y = height - 221;
+    for (const line of lines) {
+      page.drawText(line, {
+        x: 50,
+        y,
+        size: 12,
+        font: customFont,
+        color: PDFLib.rgb(0, 0, 0),
+      });
+      y -= 18; // Espaciado entre líneas
+    }
+
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
     const link = document.createElement("a");
@@ -347,12 +355,10 @@
     link.download = `Invitacion_${sanitizedName}.pdf`;
     link.click();
 
-    // Guardar en Supabase
-    await saveInvitation(rawName);
+    await saveInvitation(rawBlock);
 
-    // Siguiente
     currentIndex++;
-    statusEl.textContent = `Se generó invitación para: ${rawName}. Faltan ${namesList.length - currentIndex}.`;
+    statusEl.textContent = `Se generó invitación para: ${sanitizedName}. Faltan ${namesList.length - currentIndex}.`;
     if (currentIndex >= namesList.length) {
       statusEl.textContent = "✅ Todos los PDF fueron generados.";
       btnNext.disabled = true;
