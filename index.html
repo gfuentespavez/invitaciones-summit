@@ -352,10 +352,17 @@
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `Invitacion_${sanitizedName}.pdf`;
+
+    const filename = `Invitacion_${sanitizedName}.pdf`;
+    link.download = filename;
     link.click();
 
-    await saveInvitation(rawBlock);
+// Subir a Supabase Storage
+    const pdfUrl = await uploadPdfToStorage(filename, blob);
+
+// Guardar en BD con URL
+    await saveInvitation(rawBlock, pdfUrl);
+
 
     currentIndex++;
     statusEl.textContent = `Se generó invitación para: ${sanitizedName}. Faltan ${namesList.length - currentIndex}.`;
@@ -410,6 +417,28 @@
     } else {
       console.log("✅ Invitación guardada:", data);
     }
+  }
+
+  async function uploadPdfToStorage(filename, blob) {
+    const { data, error } = await supabase.storage
+            .from('invitaciones')
+            .upload(filename, blob, {
+              cacheControl: '3600',
+              upsert: true,
+              contentType: 'application/pdf'
+            });
+
+    if (error) {
+      console.error("❌ Error subiendo PDF:", error);
+      return null;
+    }
+
+    // Obtener URL pública
+    const { data: urlData } = supabase.storage
+            .from('invitaciones')
+            .getPublicUrl(filename);
+
+    return urlData.publicUrl;
   }
 </script>
 
