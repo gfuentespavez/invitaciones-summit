@@ -204,6 +204,27 @@
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // Verificar session al cargar la app
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (!session) {
+    window.location.href = "/login.html"; // redirige al login
+  }
+
+  // Función para guardar invitaciones en Supabase
+  async function saveInvitation(name, pdfUrl = null) {
+    const { data, error } = await supabase
+            .from('invitaciones')   // nombre de la tabla correcto
+            .insert([{ name, timestamp: new Date(), pdf_url: pdfUrl }]);
+
+    if (error) {
+      console.error("Error guardando invitación:", error);
+      alert("❌ No se pudo guardar la invitación. Revisa la consola.");
+    } else {
+      console.log("Invitación guardada:", data);
+    }
+  }
+
+
   // UI elements
   const loginCard = document.getElementById('loginCard');
   const appCard = document.getElementById('appCard');
