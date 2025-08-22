@@ -82,11 +82,29 @@
       color: #e9e9e9;
     }
     .card {
-      background-color: var(--card);
-      padding: 1rem;
-      border-radius: 12px;
+      background: rgba(28, 28, 28, 0.7);   /* translúcido */
+      backdrop-filter: blur(10px);          /* desenfoque del fondo */
+      border-radius: 20px;                  /* bordes más redondeados */
+      padding: 1.5rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 30px rgba(255,255,255,0.05);
+      max-width: 500px;
       width: 100%;
-      max-width: 560px;
+      color: #ffffff;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(255, 55, 255, 0.1);
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 40px rgba(255,255,255,0.1);
     }
     textarea.form-control {
       background-color: #FAF7F3;

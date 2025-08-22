@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="924e335c-fd96-4dc2-a394-15b2cc997efc" name="Changes" comment="some styling">
+    <list default="true" id="924e335c-fd96-4dc2-a394-15b2cc997efc" name="Changes" comment="styling to logotypes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/logo.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/logos/logo 1.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -81,7 +80,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1755803460342</updated>
-      <workItem from="1755803461416" duration="9872000" />
+      <workItem from="1755803461416" duration="10017000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <option name="closed" value="true" />
@@ -155,7 +154,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755834633640</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="styling to logotypes">
+      <option name="closed" value="true" />
+      <created>1755835015853</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1755835015854</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -166,6 +173,7 @@
     <MESSAGE value="second commit" />
     <MESSAGE value="changed to invitacion" />
     <MESSAGE value="some styling" />
-    <option name="LAST_COMMIT_MESSAGE" value="some styling" />
+    <MESSAGE value="styling to logotypes" />
+    <option name="LAST_COMMIT_MESSAGE" value="styling to logotypes" />
   </component>
 </project>
