@@ -198,19 +198,10 @@
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-  // supabase url & anon key
   const SUPABASE_URL = "https://yvjrcuhffesydxvvsoys.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2anJjdWhmZmVzeWR4dnZzb3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Mjk3MDMsImV4cCI6MjA3MTQwNTcwM30.S3nrwoaLoPl5Xf4FHEOSOsH3QSBfNQUL7uPXDbv1_qw";
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  // Verificar session al cargar la app
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-  if (!session) {
-    window.location.href = "/login.html"; // redirige al login
-  }
-
-
 
   // UI elements
   const loginCard = document.getElementById('loginCard');
@@ -228,17 +219,16 @@
   let namesList = [];
   let currentIndex = 0;
 
-  // ------- AUTH FLOW -------
-  async function showSection(section) {
-    // "login" | "app" | "blocked"
+  // UI control
+  function showSection(section) {
     loginCard.classList.toggle('hidden', section !== 'login');
     appCard.classList.toggle('hidden', section !== 'app');
     blockedCard.classList.toggle('hidden', section !== 'blocked');
     btnLogout.classList.toggle('hidden', section !== 'app');
   }
 
+  // Whitelist check
   async function checkWhitelist(email) {
-    // Por RLS, solo devuelve fila si el email de la sesión coincide con usuarios_autorizados.email
     const { data, error } = await supabase
             .from('usuarios_autorizados')
             .select('email')
@@ -246,43 +236,37 @@
             .maybeSingle();
 
     if (error) {
-      console.error('Error verificando whitelist:', error);
+      console.error('❌ Error verificando whitelist:', error);
       return false;
     }
     return !!data;
   }
 
+  // Auth session handler
   async function handleSession() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       currentUser = null;
-      await showSection('login');
+      showSection('login');
       return;
     }
     currentUser = user;
     const allowed = await checkWhitelist(user.email);
-    if (allowed) {
-      await showSection('app');
-    } else {
-      await showSection('blocked');
-    }
+    showSection(allowed ? 'app' : 'blocked');
   }
 
-  // Al cargar la página y después de los redirects de OAuth
   await handleSession();
 
-  // Reacciona a cambios de auth (p.ej., después de Google OAuth redirect)
-  supabase.auth.onAuthStateChange(async (_event, _session) => {
+  supabase.auth.onAuthStateChange(async () => {
     await handleSession();
   });
 
-  // Login con Google
+  // Login
   btnLoginGoogle.addEventListener('click', async () => {
     loginError.textContent = '';
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        // Redirige de vuelta a esta misma página
         redirectTo: window.location.origin + window.location.pathname,
       }
     });
@@ -290,7 +274,6 @@
       console.error(error);
       loginError.textContent = 'No se pudo iniciar sesión con Google.';
     }
-    // Nota: en OAuth te redirige; el resto lo maneja onAuthStateChange/handleSession
   });
 
   // Logout
@@ -300,12 +283,12 @@
     namesList = [];
     currentIndex = 0;
     statusEl.textContent = 'Esperando nombres...';
-    await showSection('login');
+    showSection('login');
   }
   btnLogout.addEventListener('click', doLogout);
   btnLogout2.addEventListener('click', doLogout);
 
-  // ------- APP: Generación de PDFs -------
+  // Cargar nombres
   btnLoad.addEventListener('click', () => {
     const names = document.getElementById("names").value
             .split("\n")
@@ -316,6 +299,7 @@
       alert("Por favor ingrese al menos un nombre.");
       return;
     }
+
     namesList = names;
     currentIndex = 0;
     statusEl.textContent = `Se cargaron ${namesList.length} nombres. Presiona "Generar siguiente".`;
@@ -334,17 +318,17 @@
     const rawName = namesList[currentIndex];
     const sanitizedName = sanitizeFilename(rawName);
 
-    // 1) Cargar PDF base
+    // Cargar PDF base
     const templateUrl = "assets/ES_invitacion.pdf";
     const existingPdfBytes = await fetch(templateUrl).then(res => res.arrayBuffer());
     const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
 
-    // 2) Registrar fontkit + cargar fuente personalizada
+    // Fuente personalizada
     pdfDoc.registerFontkit(fontkit);
     const fontBytes = await fetch("assets/fonts/DobraSlab-Book.ttf").then(res => res.arrayBuffer());
     const customFont = await pdfDoc.embedFont(fontBytes);
 
-    // 3) Dibujar nombre (ajusta coordenadas según tu diseño)
+    // Dibujar nombre
     const page = pdfDoc.getPages()[0];
     const { height } = page.getSize();
     page.drawText(rawName, {
@@ -355,7 +339,7 @@
       color: PDFLib.rgb(0, 0, 0),
     });
 
-    // 4) Descargar PDF
+    // Descargar PDF
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
     const link = document.createElement("a");
@@ -363,10 +347,10 @@
     link.download = `Invitacion_${sanitizedName}.pdf`;
     link.click();
 
-    // 5) Guardar en BD (sin URL por ahora; puedes integrar Storage luego)
+    // Guardar en Supabase
     await saveInvitation(rawName);
 
-    // 6) Siguiente
+    // Siguiente
     currentIndex++;
     statusEl.textContent = `Se generó invitación para: ${rawName}. Faltan ${namesList.length - currentIndex}.`;
     if (currentIndex >= namesList.length) {
@@ -376,7 +360,6 @@
   }
 
   function sanitizeFilename(name) {
-    // quita acentos y caracteres problemáticos
     return name
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
             .replace(/[^\w\-]+/g, '_')
@@ -384,26 +367,45 @@
             .replace(/^_+|_+$/g, '');
   }
 
-  async function saveInvitation(name, pdfUrl = null) {
-    const userId = session.user.id; // 👈 obtenemos el UID del usuario logueado
+  async function saveInvitation(nombre, pdfUrl = null, idioma = 'ES') {
+    if (!currentUser) {
+      console.error("❌ No hay usuario autenticado.");
+      return;
+    }
+
+    const userId = currentUser.id;
+
+    if (!nombre || typeof nombre !== 'string') {
+      console.error("❌ Nombre inválido:", nombre);
+      return;
+    }
+
+    if (!['ES', 'EN'].includes(idioma)) {
+      console.error("❌ Idioma inválido:", idioma);
+      return;
+    }
+
+    const payload = {
+      nombre,
+      user_id: userId,
+      idioma,
+      pdf_url: pdfUrl
+    };
+
+    console.log("📦 Insertando:", payload);
 
     const { data, error } = await supabase
             .from('invitaciones')
-            .insert([{
-              name,
-              user_id: userId,    // 👈 guardamos quién creó la invitación
-              timestamp: new Date(),
-              pdf_url: pdfUrl
-            }]);
+            .insert([payload]); // sin .select()
 
     if (error) {
-      console.error("❌ Error guardando invitación:", error);
+      console.error("❌ Error guardando invitación:", JSON.stringify(error, null, 2));
       alert("No se pudo guardar la invitación. Revisa la consola.");
     } else {
       console.log("✅ Invitación guardada:", data);
     }
   }
-
 </script>
+
 </body>
 </html>
