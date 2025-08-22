@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cities In Transition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- pdf-lib + fontkit -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --primary: #ffcc05;
+      --bg: #0e0e0e;
+      --card: #1c1c1c;
+      --muted: #ccc;
+    }
+    body {
+      background-color: var(--bg);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      gap: 12px;
+    }
+    .logo {
+      width: 150px;
+      height: auto;
+    }
+    h1 {
+      font-family: "Roboto Slab", serif;
+      font-size: 42px;
+      font-weight: 700;
+      margin: 10px 0 0;
+    }
+    h2 {
+      font-family: "Roboto Slab", serif;
+      font-size: 22px;
+      font-weight: 400;
+      margin: 0 0 10px;
+      color: #e9e9e9;
+    }
+    .card {
+      background-color: var(--card);
+      color: white;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
+      width: 100%;
+      max-width: 560px;
+    }
+    textarea.form-control {
+      background-color: #2b2b2b;
+      color: #fff;
+      border: 1px solid #444;
+    }
+    .btn-cta {
+      background: var(--primary);
+      color: #000;
+      border: none;
+      font-weight: 700;
+      padding: 12px 18px;
+      border-radius: 10px;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .btn-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255,204,5,.35);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid #333;
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+    #status {
+      color: var(--muted);
+      font-size: .95rem;
+      text-align: center;
+      margin-top: .5rem;
+    }
+    .hidden { display: none !important; }
+    .topbar {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<img src="assets/logo.png" alt="Logo" class="logo" />
+<h1>Cities In Transition</h1>
+<h2>MIT City Science Summit - Biobío 2025</h2>
+
+<!-- Top actions (logout) -->
+<div class="topbar">
+  <button id="btn-logout" class="btn-ghost hidden">Cerrar sesión</button>
+</div>
+
+<!-- Login Card -->
+<div id="loginCard" class="card">
+  <h4 class="text-center mb-3">Acceso a Invitaciones</h4>
+  <p class="text-center text-secondary mb-3">Ingresa con tu cuenta Google autorizada.</p>
+  <div class="d-grid">
+    <button id="btn-login-google" class="btn-cta">Ingresar con Google</button>
+  </div>
+  <div id="login-error" class="text-danger mt-3 small"></div>
+</div>
+
+<!-- Blocked (not whitelisted) -->
+<div id="blockedCard" class="card hidden">
+  <h5 class="mb-2">Acceso restringido</h5>
+  <p class="mb-2">Tu correo no está autorizado para generar invitaciones.</p>
+  <p class="text-secondary small mb-3">Si crees que es un error, contacta al administrador para agregar tu correo a la whitelist.</p>
+  <button id="btn-logout-2" class="btn-ghost">Cerrar sesión</button>
+</div>
+
+<!-- App Card -->
+<div id="appCard" class="card hidden">
+  <div class="mb-3">
+    <label for="names" class="form-label">Ingrese nombres (uno por línea):</label>
+    <textarea class="form-control" id="names" rows="6" placeholder="Ejemplo:&#10;Juan Pérez&#10;María González"></textarea>
+  </div>
+
+  <div class="d-grid d-sm-flex justify-content-center gap-2">
+    <button class="btn-cta" id="btn-load">Cargar nombres</button>
+    <button class="btn-cta" id="nextBtn" disabled>Generar siguiente</button>
+  </div>
+
+  <p id="status">Esperando nombres...</p>
+</div>
+
+<!-- Supabase (ESM) -->
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+  // ⛳️ REEMPLAZA ESTO CON TUS CREDENCIALES
+  const SUPABASE_URL = "https://yvjrcuhffesydxvvsoys.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2anJjdWhmZmVzeWR4dnZzb3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Mjk3MDMsImV4cCI6MjA3MTQwNTcwM30.S3nrwoaLoPl5Xf4FHEOSOsH3QSBfNQUL7uPXDbv1_qw";
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // UI elements
+  const loginCard = document.getElementById('loginCard');
+  const appCard = document.getElementById('appCard');
+  const blockedCard = document.getElementById('blockedCard');
+  const btnLoginGoogle = document.getElementById('btn-login-google');
+  const btnLogout = document.getElementById('btn-logout');
+  const btnLogout2 = document.getElementById('btn-logout-2');
+  const btnLoad = document.getElementById('btn-load');
+  const btnNext = document.getElementById('nextBtn');
+  const statusEl = document.getElementById('status');
+  const loginError = document.getElementById('login-error');
+
+  let currentUser = null;
+  let namesList = [];
+  let currentIndex = 0;
+
+  // ------- AUTH FLOW -------
+  async function showSection(section) {
+    // "login" | "app" | "blocked"
+    loginCard.classList.toggle('hidden', section !== 'login');
+    appCard.classList.toggle('hidden', section !== 'app');
+    blockedCard.classList.toggle('hidden', section !== 'blocked');
+    btnLogout.classList.toggle('hidden', section !== 'app');
+  }
+
+  async function checkWhitelist(email) {
+    // Por RLS, solo devuelve fila si el email de la sesión coincide con usuarios_autorizados.email
+    const { data, error } = await supabase
+            .from('usuarios_autorizados')
+            .select('email')
+            .eq('email', email)
+            .maybeSingle();
+
+    if (error) {
+      console.error('Error verificando whitelist:', error);
+      return false;
+    }
+    return !!data;
+  }
+
+  async function handleSession() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      currentUser = null;
+      await showSection('login');
+      return;
+    }
+    currentUser = user;
+    const allowed = await checkWhitelist(user.email);
+    if (allowed) {
+      await showSection('app');
+    } else {
+      await showSection('blocked');
+    }
+  }
+
+  // Al cargar la página y después de los redirects de OAuth
+  await handleSession();
+
+  // Reacciona a cambios de auth (p.ej., después de Google OAuth redirect)
+  supabase.auth.onAuthStateChange(async (_event, _session) => {
+    await handleSession();
+  });
+
+  // Login con Google
+  btnLoginGoogle.addEventListener('click', async () => {
+    loginError.textContent = '';
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        // Redirige de vuelta a esta misma página
+        redirectTo: window.location.origin + window.location.pathname,
+      }
+    });
+    if (error) {
+      console.error(error);
+      loginError.textContent = 'No se pudo iniciar sesión con Google.';
+    }
+    // Nota: en OAuth te redirige; el resto lo maneja onAuthStateChange/handleSession
+  });
+
+  // Logout
+  async function doLogout() {
+    await supabase.auth.signOut();
+    currentUser = null;
+    namesList = [];
+    currentIndex = 0;
+    statusEl.textContent = 'Esperando nombres...';
+    await showSection('login');
+  }
+  btnLogout.addEventListener('click', doLogout);
+  btnLogout2.addEventListener('click', doLogout);
+
+  // ------- APP: Generación de PDFs -------
+  btnLoad.addEventListener('click', () => {
+    const names = document.getElementById("names").value
+            .split("\n")
+            .map(n => n.trim())
+            .filter(n => n.length > 0);
+
+    if (names.length === 0) {
+      alert("Por favor ingrese al menos un nombre.");
+      return;
+    }
+    namesList = names;
+    currentIndex = 0;
+    statusEl.textContent = `Se cargaron ${namesList.length} nombres. Presiona "Generar siguiente".`;
+    btnNext.disabled = false;
+  });
+
+  btnNext.addEventListener('click', generateNext);
+
+  async function generateNext() {
+    if (currentIndex >= namesList.length) {
+      statusEl.textContent = "✅ Todos los PDF fueron generados.";
+      btnNext.disabled = true;
+      return;
+    }
+
+    const rawName = namesList[currentIndex];
+    const sanitizedName = sanitizeFilename(rawName);
+
+    // 1) Cargar PDF base
+    const templateUrl = "assets/ES_invitación.pdf";
+    const existingPdfBytes = await fetch(templateUrl).then(res => res.arrayBuffer());
+    const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+
+    // 2) Registrar fontkit + cargar fuente personalizada
+    pdfDoc.registerFontkit(fontkit);
+    const fontBytes = await fetch("assets/fonts/DobraSlab-Book.ttf").then(res => res.arrayBuffer());
+    const customFont = await pdfDoc.embedFont(fontBytes);
+
+    // 3) Dibujar nombre (ajusta coordenadas según tu diseño)
+    const page = pdfDoc.getPages()[0];
+    const { height } = page.getSize();
+    page.drawText(rawName, {
+      x: 50,
+      y: height - 221,
+      size: 12,
+      font: customFont,
+      color: PDFLib.rgb(0, 0, 0),
+    });
+
+    // 4) Descargar PDF
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Invitacion_${sanitizedName}.pdf`;
+    link.click();
+
+    // 5) Guardar en BD (sin URL por ahora; puedes integrar Storage luego)
+    await saveInvitation(rawName);
+
+    // 6) Siguiente
+    currentIndex++;
+    statusEl.textContent = `Se generó invitación para: ${rawName}. Faltan ${namesList.length - currentIndex}.`;
+    if (currentIndex >= namesList.length) {
+      statusEl.textContent = "✅ Todos los PDF fueron generados.";
+      btnNext.disabled = true;
+    }
+  }
+
+  function sanitizeFilename(name) {
+    // quita acentos y caracteres problemáticos
+    return name
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^\w\-]+/g, '_')
+            .replace(/_+/g, '_')
+            .replace(/^_+|_+$/g, '');
+  }
+
+  async function saveInvitation(name, pdfUrl = null) {
+    if (!currentUser) return;
+    const { error } = await supabase
+            .from('invitaciones')
+            .insert([{
+              user_id: currentUser.id,
+              nombre: name,
+              idioma: 'ES',
+              pdf_url: pdfUrl
+            }]);
+    if (error) {
+      console.error("Error guardando invitación:", error);
+    }
+  }
+</script>
+</body>
+</html>
