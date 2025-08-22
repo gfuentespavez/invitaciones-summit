@@ -278,7 +278,7 @@
     const sanitizedName = sanitizeFilename(rawName);
 
     // 1) Cargar PDF base
-    const templateUrl = "assets/ES_invitación.pdf";
+    const templateUrl = "assets/ES_invitacion.pdf";
     const existingPdfBytes = await fetch(templateUrl).then(res => res.arrayBuffer());
     const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
 
