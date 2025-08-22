@@ -398,6 +398,24 @@
       console.error("Error guardando invitación:", error);
     }
   }
+
+  // Insertar en la tabla con user_id
+  const { data, error } = await supabase
+          .from('invitaciones')
+          .insert([{
+            name,
+            pdf_url: pdfUrl,
+            timestamp: new Date().toISOString(),
+            user_id: userId
+          }]);
+
+  if (error) {
+    console.error("Error guardando invitación:", error);
+    alert("❌ No se pudo guardar la invitación. Revisa la consola.");
+  } else {
+    console.log("✅ Invitación guardada:", data);
+  }
+  }
 </script>
 </body>
 </html>
