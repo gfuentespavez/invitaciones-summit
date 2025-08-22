@@ -210,19 +210,6 @@
     window.location.href = "/login.html"; // redirige al login
   }
 
-  // Función para guardar invitaciones en Supabase
-  async function saveInvitation(name, pdfUrl = null) {
-    const { data, error } = await supabase
-            .from('invitaciones')   // nombre de la tabla correcto
-            .insert([{ name, timestamp: new Date(), pdf_url: pdfUrl }]);
-
-    if (error) {
-      console.error("Error guardando invitación:", error);
-      alert("❌ No se pudo guardar la invitación. Revisa la consola.");
-    } else {
-      console.log("Invitación guardada:", data);
-    }
-  }
 
 
   // UI elements
