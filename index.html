@@ -25,6 +25,7 @@
       --muted: #ccc;
     }
     body {
+      font-family: 'Roboto Slab', serif;
       background-color: var(--bg);
       background-image: url('assets/png/Recurso 4.png');
       background-size: cover;
@@ -52,9 +53,20 @@
       position: relative;
       z-index: 1; /* todos los elementos sobre el overlay */
     }
-    .logo {
-      width: 150px;
+    .logo-left, .logo-right {
+      max-height: 80px;  /* ajusta según el diseño */
       height: auto;
+    }
+
+    @media (max-width: 576px) {
+      .logo-left, .logo-right {
+        max-height: 50px;  /* más pequeño en móviles */
+      }
+      .logo-container {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
     }
     h1 {
       font-family: "Roboto Slab", serif;
@@ -119,7 +131,10 @@
 <body>
 
 <!-- Header -->
-<img src="assets/logo.png" alt="Logo" class="logo" />
+<div class="d-flex justify-content-center align-items-center mb-4 logo-container">
+  <img src="assets/logos/logo 1.png" alt="Logo 1" class="logo-left">
+  <img src="assets/logos/logo 2.png" alt="Logo 2" class="logo-right">
+</div>
 <h1>Cities In Transition</h1>
 <h2>MIT City Science Summit - Biobío 2025</h2>
 
