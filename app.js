@@ -328,3 +328,6 @@ btnLoad.addEventListener('click', () => {
 // Asigna las funciones a los botones de generación.
 btnNext.addEventListener('click', generateNext);
 btnGenerateAll.addEventListener('click', generateAll);
+
+const selectedTemplate = document.getElementById("templateSelector").value;
+await createPdf(rawBlock, selectedTemplate);
