@@ -111,43 +111,45 @@ function sanitizeFilename(name) {
  * @param {string} rawBlock - El bloque de texto con nombres y cargos.
  * @returns {Promise<{pdfBytes: Uint8Array, filename: string}|null>} - Los bytes del PDF y el nombre de archivo, o `null` si falla.
  */
-async function createPdf(rawBlock) {
-    try {
-        const lines = rawBlock.split("\n").map(l => l.trim()).filter(l => l.length > 0);
-        const sanitizedName = sanitizeFilename(lines[0] || `Invitacion`);
-
-        // Carga la plantilla PDF y la fuente personalizada.
-        const templateUrl = "assets/ES_invitacion.pdf";
-        const existingPdfBytes = await fetch(templateUrl).then(res => res.arrayBuffer());
-        const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-
-        pdfDoc.registerFontkit(fontkit);
-        const fontBytes = await fetch("assets/fonts/DobraSlab-Book.ttf").then(res => res.arrayBuffer());
-        const customFont = await pdfDoc.embedFont(fontBytes);
-
-        const page = pdfDoc.getPages()[0];
-        const { height } = page.getSize();
-
-        // Dibuja el texto en el PDF.
-        let y = height - 221;
-        for (const line of lines) {
-            page.drawText(line, { x: 50, y, size: 12, font: customFont, color: PDFLib.rgb(0, 0, 0) });
-            y -= 14; // Espaciado entre líneas.
-        }
-
-        const pdfBytes = await pdfDoc.save();
-        const filename = `Invitacion_${sanitizedName}.pdf`;
-
-        // Sube el PDF a Supabase Storage y guarda la referencia en la base de datos.
-        const blob = new Blob([pdfBytes], { type: "application/pdf" });
-        const pdfUrl = await uploadPdfToStorage(filename, blob);
-        await saveInvitation(rawBlock, pdfUrl);
-
-        return { pdfBytes, filename };
-    } catch (error) {
-        console.error("Error creando PDF:", error);
-        return null;
+async function createPdf(rawBlock, templateName = "ES_invitacion.pdf") {
+  try {
+    const allowedTemplates = ["ES_invitacion.pdf", "EN_invitation.pdf"];
+    if (!allowedTemplates.includes(templateName)) {
+      throw new Error("Plantilla no permitida");
     }
+
+    const lines = rawBlock.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+    const sanitizedName = sanitizeFilename(lines[0] || `Invitacion`);
+
+    const templateUrl = `assets/${templateName}`;
+    const existingPdfBytes = await fetch(templateUrl).then(res => res.arrayBuffer());
+    const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+
+    pdfDoc.registerFontkit(fontkit);
+    const fontBytes = await fetch("assets/fonts/DobraSlab-Book.ttf").then(res => res.arrayBuffer());
+    const customFont = await pdfDoc.embedFont(fontBytes);
+
+    const page = pdfDoc.getPages()[0];
+    const { height } = page.getSize();
+
+    let y = height - 221;
+    for (const line of lines) {
+      page.drawText(line, { x: 50, y, size: 12, font: customFont, color: PDFLib.rgb(0, 0, 0) });
+      y -= 14;
+    }
+
+    const pdfBytes = await pdfDoc.save();
+    const filename = `Invitacion_${sanitizedName}.pdf`;
+
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const pdfUrl = await uploadPdfToStorage(filename, blob);
+    await saveInvitation(rawBlock, pdfUrl);
+
+    return { pdfBytes, filename };
+  } catch (error) {
+    console.error("Error creando PDF:", error);
+    return null;
+  }
 }
 
 /**
