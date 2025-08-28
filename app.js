@@ -212,5 +212,26 @@ async function doLogout() {
     }
 }
 
+btnLoad.addEventListener('click', () => {
+    const rawText = document.getElementById("names").value;
+    console.log("📥 Texto recibido:", rawText);
+
+    namesList = rawText
+        .split(",")
+        .map(b => b.trim())
+        .filter(b => b.length > 0);
+
+    if (!namesList.length) {
+        alert("Por favor ingrese al menos un bloque separado por coma.");
+        statusEl.textContent = "⚠️ No se cargaron nombres.";
+        return;
+    }
+
+    currentIndex = 0;
+    statusEl.textContent = `✅ Se cargaron ${namesList.length} bloques. Listo para generar.`;
+    setButtonsState(true);
+});
+
+
 btnLogout.addEventListener('click', doLogout);
 btnLogout2.addEventListener('click', doLogout);
