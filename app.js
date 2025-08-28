@@ -237,3 +237,6 @@ btnLoad.addEventListener('click', () => {
     statusEl.textContent = `✅ Se cargaron ${namesList.length} bloques. Listo para generar.`;
     setButtonsState(true);
 });
+
+btnNext.addEventListener('click', generateNext);
+btnGenerateAll.addEventListener('click', generateAll);
