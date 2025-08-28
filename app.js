@@ -212,14 +212,20 @@ async function doLogout() {
     }
 }
 
+btnLogout.addEventListener('click', doLogout);
+btnLogout2.addEventListener('click', doLogout);
+
 btnLoad.addEventListener('click', () => {
     const rawText = document.getElementById("names").value;
     console.log("📥 Texto recibido:", rawText);
 
+    // Separar por coma, pero permitir saltos de línea dentro de cada bloque
     namesList = rawText
         .split(",")
-        .map(b => b.trim())
+        .map(b => b.trim().replace(/\r?\n/g, "\n")) // normaliza saltos de línea
         .filter(b => b.length > 0);
+
+    console.log("📦 Bloques cargados:", namesList);
 
     if (!namesList.length) {
         alert("Por favor ingrese al menos un bloque separado por coma.");
@@ -231,7 +237,3 @@ btnLoad.addEventListener('click', () => {
     statusEl.textContent = `✅ Se cargaron ${namesList.length} bloques. Listo para generar.`;
     setButtonsState(true);
 });
-
-
-btnLogout.addEventListener('click', doLogout);
-btnLogout2.addEventListener('click', doLogout);
