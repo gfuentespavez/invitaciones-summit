@@ -34,7 +34,7 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      background-attachment: fixed; /* permanece fijo al hacer scroll */
+      background-attachment: fixed;
       color: #fff;
       min-height: 100vh;
       display: flex;
@@ -48,46 +48,21 @@
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background-color: rgba(0,0,0,0.6); /* oscurece la imagen */
+      background-color: rgba(0,0,0,0.6);
       z-index: 0;
     }
-
-    body > * {
-      position: relative;
-      z-index: 1; /* todos los elementos sobre el overlay */
-    }
-    .logo-left, .logo-right {
-      max-height: 80px;  /* ajusta según el diseño */
-      height: auto;
-    }
-
+    body > * { position: relative; z-index: 1; }
+    .logo-left, .logo-right { max-height: 80px; height: auto; }
     @media (max-width: 576px) {
-      .logo-left, .logo-right {
-        max-height: 50px;  /* más pequeño en móviles */
-      }
-      .logo-container {
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
-      }
+      .logo-left, .logo-right { max-height: 50px; }
+      .logo-container { flex-direction: column; gap: 10px; align-items: center; }
     }
-    h1 {
-      font-family: "Roboto Slab", serif;
-      font-size: 42px;
-      font-weight: 700;
-      margin: 10px 0 0;
-    }
-    h2 {
-      font-family: "Roboto Slab", serif;
-      font-size: 22px;
-      font-weight: 400;
-      margin: 0 0 10px;
-      color: #e9e9e9;
-    }
+    h1 { font-size: 42px; font-weight: 700; margin: 10px 0 0; }
+    h2 { font-size: 22px; font-weight: 400; margin: 0 0 10px; color: #e9e9e9; }
     .card {
-      background: rgba(28, 28, 28, 0.7);   /* translúcido */
-      backdrop-filter: blur(10px);          /* desenfoque del fondo */
-      border-radius: 20px;                  /* bordes más redondeados */
+      background: rgba(28, 28, 28, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
       padding: 1.5rem;
       box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 30px rgba(255,255,255,0.05);
       max-width: 500px;
@@ -95,23 +70,10 @@
       color: #ffffff;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      border-radius: 20px;
-      box-shadow: 0 0 30px rgba(255, 55, 255, 0.1);
-      pointer-events: none;
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 40px rgba(255,255,255,0.1);
-    }
+    .card:hover { transform: translateY(-5px); }
     textarea.form-control {
       background-color: #FAF7F3;
-      color: #fff;
+      color: #000; /* corregido */
     }
     .btn-cta {
       background: var(--primary);
@@ -122,31 +84,11 @@
       border-radius: 10px;
       transition: transform .2s ease, box-shadow .2s ease;
     }
-    .btn-cta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(255,204,5,.35);
-    }
-    .btn-ghost {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid #333;
-      padding: 10px 14px;
-      border-radius: 10px;
-    }
-    #status {
-      color: var(--muted);
-      font-size: .95rem;
-      text-align: center;
-      margin-top: .5rem;
-    }
+    .btn-cta:hover { transform: translateY(-2px); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid #333; }
+    #status { color: var(--muted); font-size: .95rem; text-align: center; margin-top: .5rem; }
     .hidden { display: none !important; }
-    .topbar {
-      width: 100%;
-      max-width: 560px;
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-    }
+    .topbar { width: 100%; max-width: 560px; display: flex; justify-content: flex-end; gap: 8px; }
   </style>
 </head>
 <body>
@@ -159,7 +101,7 @@
 <h1>Cities In Transition</h1>
 <h2>MIT City Science Summit - Biobío 2025</h2>
 
-<!-- Top actions (logout) -->
+<!-- Top actions -->
 <div class="topbar">
   <button id="btn-logout" class="btn-ghost hidden">Cerrar sesión</button>
 </div>
@@ -174,23 +116,25 @@
   <div id="login-error" class="text-danger mt-3 small"></div>
 </div>
 
-<!-- Blocked (not whitelisted) -->
+<!-- Blocked -->
 <div id="blockedCard" class="card hidden">
   <h5 class="mb-2">Acceso restringido</h5>
-  <p class="mb-2">Tu correo no está autorizado para generar invitaciones.</p>
-  <p class="text-secondary small mb-3">Si crees que es un error, contacta al administrador para agregar tu correo a la whitelist.</p>
+  <p class="mb-2">Tu correo no está autorizado.</p>
   <button id="btn-logout-2" class="btn-ghost">Cerrar sesión</button>
 </div>
 
-  <select id="templateSelector">
-  <option value="ES_invitacion.pdf">Invitación en Español</option>
-  <option value="EN_invitation.pdf">Invitation in English</option>
-</select>
-
 <!-- App Card -->
 <div id="appCard" class="card hidden">
+  <div id="templateContainer" class="mb-3 hidden">
+    <label for="templateSelector" class="form-label">Selecciona tipo de invitación:</label>
+    <select id="templateSelector" class="form-select">
+      <option value="ES_invitacion.pdf">Invitación en Español</option>
+      <option value="EN_invitation.pdf">Invitation in English</option>
+    </select>
+  </div>
+
   <div class="mb-3">
-    <label for="names" class="form-label">Ingrese nombres y cargos. Separa los archivos PDF con una coma (,):</label>
+    <label for="names" class="form-label">Ingrese nombres y cargos. Separa los bloques con coma (,):</label>
     <textarea class="form-control" id="names" rows="6" placeholder="Ejemplo:&#10;Juan Pérez&#10;María González"></textarea>
   </div>
 

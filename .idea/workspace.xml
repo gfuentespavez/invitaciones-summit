@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="924e335c-fd96-4dc2-a394-15b2cc997efc" name="Changes" comment="verify log in">
+    <list default="true" id="924e335c-fd96-4dc2-a394-15b2cc997efc" name="Changes" comment="edited (again)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -51,6 +52,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/germanfuentes/WebstormProjects/invitaciones&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -80,7 +82,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1755803460342</updated>
-      <workItem from="1755803461416" duration="11287000" />
+      <workItem from="1755803461416" duration="15293000" />
+      <workItem from="1755883266596" duration="2201000" />
+      <workItem from="1755888693047" duration="598000" />
+      <workItem from="1755898947645" duration="1194000" />
+      <workItem from="1756317112400" duration="1349000" />
+      <workItem from="1756390925542" duration="327000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <option name="closed" value="true" />
@@ -178,7 +185,103 @@
       <option name="project" value="LOCAL" />
       <updated>1755835654136</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="fixed duplicated function saveInvitation">
+      <option name="closed" value="true" />
+      <created>1755868475983</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1755868475983</updated>
+    </task>
+    <task id="LOCAL-00014" summary="insert table invitaciones">
+      <option name="closed" value="true" />
+      <created>1755868601447</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1755868601447</updated>
+    </task>
+    <task id="LOCAL-00015" summary="insert table invitaciones">
+      <option name="closed" value="true" />
+      <created>1755868711235</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1755868711235</updated>
+    </task>
+    <task id="LOCAL-00016" summary="fixed logic">
+      <option name="closed" value="true" />
+      <created>1755868786839</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1755868786839</updated>
+    </task>
+    <task id="LOCAL-00017" summary="fixed logic saveInvitation">
+      <option name="closed" value="true" />
+      <created>1755875076272</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1755875076272</updated>
+    </task>
+    <task id="LOCAL-00018" summary="many changes">
+      <option name="closed" value="true" />
+      <created>1755877091139</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1755877091139</updated>
+    </task>
+    <task id="LOCAL-00019" summary="many changes">
+      <option name="closed" value="true" />
+      <created>1755883698936</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1755883698936</updated>
+    </task>
+    <task id="LOCAL-00020" summary="many changes 2">
+      <option name="closed" value="true" />
+      <created>1755883747618</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1755883747618</updated>
+    </task>
+    <task id="LOCAL-00021" summary="adjusted interlining">
+      <option name="closed" value="true" />
+      <created>1755883942935</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1755883942936</updated>
+    </task>
+    <task id="LOCAL-00022" summary="saving into supabase bucket">
+      <option name="closed" value="true" />
+      <created>1755885207174</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1755885207174</updated>
+    </task>
+    <task id="LOCAL-00023" summary="edited">
+      <option name="closed" value="true" />
+      <created>1756317118275</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1756317118275</updated>
+    </task>
+    <task id="LOCAL-00024" summary="edited (again)">
+      <option name="closed" value="true" />
+      <created>1756317828840</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1756317828840</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -192,6 +295,16 @@
     <MESSAGE value="styling to logotypes" />
     <MESSAGE value="some more styling" />
     <MESSAGE value="verify log in" />
-    <option name="LAST_COMMIT_MESSAGE" value="verify log in" />
+    <MESSAGE value="fixed duplicated function saveInvitation" />
+    <MESSAGE value="insert table invitaciones" />
+    <MESSAGE value="fixed logic" />
+    <MESSAGE value="fixed logic saveInvitation" />
+    <MESSAGE value="many changes" />
+    <MESSAGE value="many changes 2" />
+    <MESSAGE value="adjusted interlining" />
+    <MESSAGE value="saving into supabase bucket" />
+    <MESSAGE value="edited" />
+    <MESSAGE value="edited (again)" />
+    <option name="LAST_COMMIT_MESSAGE" value="edited (again)" />
   </component>
 </project>
