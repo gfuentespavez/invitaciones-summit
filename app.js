@@ -51,8 +51,8 @@ async function checkWhitelist(email) {
     return !!data;
 }
 
-async function handleSession() {
-    const { data: { user } } = await supabase.auth.getUser();
+async function handleSession(event, session) {
+    const user = session?.user || (await supabase.auth.getUser()).data?.user;
     if (!user) return showSection('login');
 
     currentUser = user;
@@ -60,8 +60,9 @@ async function handleSession() {
     showSection(allowed ? 'app' : 'blocked');
 }
 
-handleSession();
+
 supabase.auth.onAuthStateChange(handleSession);
+handleSession(); // Esto puede quedar, pero ya no será el único disparador
 
 // --- PDF Logic ---
 function sanitizeFilename(name) {
