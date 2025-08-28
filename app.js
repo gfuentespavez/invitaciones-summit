@@ -1,7 +1,7 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 const SUPABASE_URL = "https://yvjrcuhffesydxvvsoys.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2anJjdWhmZmVzeWR4dnZzb3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Mjk3MDMsImV4cCI6MjA3MTQwNTcwM30.S3nrwoaLoPl5Xf4FHEOSOsH3QSBfNQUL7uPXDbv1_qw"; // ⚠️ reemplazar con tu key
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2anJjdWhmZmVzeWR4dnZzb3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Mjk3MDMsImV4cCI6MjA3MTQwNTcwM30.S3nrwoaLoPl5Xf4FHEOSOsH3QSBfNQUL7uPXDbv1_qw";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -47,7 +47,10 @@ async function checkWhitelist(email) {
         .eq('email', email)
         .maybeSingle();
 
-    if (error) { console.error('❌ Error whitelist:', error); return false; }
+    if (error) {
+        console.error('❌ Error whitelist:', error);
+        return false;
+    }
     return !!data;
 }
 
@@ -56,13 +59,13 @@ async function handleSession(event, session) {
     if (!user) return showSection('login');
 
     currentUser = user;
+    console.log("🔐 Usuario logueado:", user.email);
     const allowed = await checkWhitelist(user.email);
     showSection(allowed ? 'app' : 'blocked');
 }
 
-
 supabase.auth.onAuthStateChange(handleSession);
-handleSession(); // Esto puede quedar, pero ya no será el único disparador
+handleSession();
 
 // --- PDF Logic ---
 function sanitizeFilename(name) {
@@ -194,23 +197,20 @@ btnLoginGoogle.addEventListener('click', async () => {
     if (error) loginError.textContent = 'No se pudo iniciar sesión con Google.';
 });
 
+// --- Logout ---
 async function doLogout() {
-    await supabase.auth.signOut();
-    currentUser = null; namesList = []; currentIndex = 0;
-    statusEl.textContent = 'Esperando nombres...';
-    showSection('login');
+    try {
+        await supabase.auth.signOut();
+        currentUser = null;
+        namesList = [];
+        currentIndex = 0;
+        statusEl.textContent = 'Esperando nombres...';
+        showSection('login');
+        console.log("🔓 Sesión cerrada correctamente.");
+    } catch (error) {
+        console.error("❌ Error al cerrar sesión:", error);
+    }
 }
+
 btnLogout.addEventListener('click', doLogout);
 btnLogout2.addEventListener('click', doLogout);
-
-btnLoad.addEventListener('click', () => {
-    const rawText = document.getElementById("names").value;
-    namesList = rawText.split(",").map(b => b.trim()).filter(b => b.length > 0);
-    if (!namesList.length) return alert("Por favor ingrese al menos un bloque.");
-    currentIndex = 0;
-    statusEl.textContent = `Se cargaron ${namesList.length} bloques. Listo para generar.`;
-    setButtonsState(true);
-});
-
-btnNext.addEventListener('click', generateNext);
-btnGenerateAll.addEventListener('click', generateAll);
