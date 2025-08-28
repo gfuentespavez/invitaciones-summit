@@ -1,7 +1,7 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 const SUPABASE_URL = "https://yvjrcuhffesydxvvsoys.supabase.co";
-const SUPABASE_ANON_KEY = "TU_KEY_AQUI"; // ⚠️ reemplazar con tu key
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2anJjdWhmZmVzeWR4dnZzb3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Mjk3MDMsImV4cCI6MjA3MTQwNTcwM30.S3nrwoaLoPl5Xf4FHEOSOsH3QSBfNQUL7uPXDbv1_qw"; // ⚠️ reemplazar con tu key
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
